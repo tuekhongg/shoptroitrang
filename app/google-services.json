@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "954594404010",
+    "project_id": "shopthoitrang-4ea6d",
+    "storage_bucket": "shopthoitrang-4ea6d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:954594404010:android:a0a10455df0d57047bd2d3",
+        "android_client_info": {
+          "package_name": "com.example.shopthoitrang"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8uz0d-ajsmX0H45Q7BJj9ykHs3SujU7c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
