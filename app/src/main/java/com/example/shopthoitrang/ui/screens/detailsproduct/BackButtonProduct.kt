@@ -71,30 +71,20 @@ fun BackButtonProduct(
                     interactionSource = interactionSource,
                     indication = null
                 ) {
+                    val entity = EntityFavoriteProduct(
+                        Id = product.Id ?: 0,
+                        Name = product.Name ?: "",
+                        Price = product.Price ?: 0.0,
+                        Image = Converters.fromList(product.Image),
+                        Description = product.Description ?: "",
+                        CategoryId = product.CategoryId ?: 0,
+                        Quantity = product.Quantity ?: 0,
+                    )
+
                     if (isFavorite) {
-                        detailsProductViewModel.deleteFavoriteProduct(
-                            EntityFavoriteProduct(
-                                Id = product.Id ?: 0,
-                                Name = product.Name ?: "",
-                                Price = product.Price ?: 0.0,
-                                Image = Converters.fromList(product.Image),
-                                Description = product.Description ?: "",
-                                CategoryId = product.CategoryId ?: 0,
-                                Quantity = product.Quantity ?: 0,
-                            )
-                        )
+                        detailsProductViewModel.deleteFavoriteProduct(entity)
                     } else {
-                        detailsProductViewModel.insertFavoriteProduct(
-                            EntityFavoriteProduct(
-                                Id = product.Id ?: 0,
-                                Name = product.Name ?: "",
-                                Price = product.Price ?: 0.0,
-                                Image = Converters.fromList(product.Image),
-                                Description = product.Description ?: "",
-                                CategoryId = product.CategoryId ?: 0,
-                                Quantity = product.Quantity ?: 0,
-                            )
-                        )
+                        detailsProductViewModel.insertFavoriteProduct(entity)
                     }
                 },
             tint = Color.Unspecified

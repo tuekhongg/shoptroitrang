@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -32,129 +33,109 @@ import com.example.shopthoitrang.R
 import com.example.shopthoitrang.viewmodel.AccountViewModel
 
 @Composable
-fun DialogChangePassword(show: Boolean, accountViewModel: AccountViewModel) {
-    if (show) {
-        val newpassword = accountViewModel.newpassword.collectAsState().value
-        val confirmnewpassword = accountViewModel.confirmnewpassword.collectAsState().value
-        val KeyBoard = LocalSoftwareKeyboardController.current
-        val context = LocalContext.current
-        AlertDialog(
-            onDismissRequest = {
+fun DialogChangePassword(
+    show: Boolean,
+    accountViewModel: AccountViewModel
+) {
+    if (!show) return
 
-            },
-            title = {
-                Text(
-                    "Đổi mật khẩu",
-                    fontSize = 16.sp
+    val newPassword = accountViewModel.newpassword.collectAsState().value
+    val confirmPassword = accountViewModel.confirmnewpassword.collectAsState().value
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val context = LocalContext.current
+
+    AlertDialog(
+        onDismissRequest = { },
+        title = {
+            Text("Đổi mật khẩu", fontSize = 16.sp)
+        },
+        text = {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                PasswordField(
+                    label = "Mật khẩu mới",
+                    value = newPassword,
+                    onValueChange = accountViewModel::setNewpassword,
+                    keyboardController = keyboardController
                 )
-            },
-            text = {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    OutlinedTextField(
-                        value = newpassword,
-                        onValueChange = {
-                            accountViewModel.setNewpassword(it)
-                        },
-                        maxLines = 1,
-                        label = {
-                            Text("Mật khẩu mới")
-                        },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Lock,
-                                contentDescription = null
-                            )
-                        },
-                        visualTransformation = PasswordVisualTransformation(),
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Password,
-                            imeAction = ImeAction.Go
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onGo = {
-                                KeyBoard?.hide()
-                            }
-                        ),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = Color.Transparent,
-                            unfocusedContainerColor = Color.Transparent,
-                            focusedBorderColor = Color.Black,
-                            unfocusedBorderColor = Color.Black,
-                            focusedLabelColor = Color.Black
-                        )
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    OutlinedTextField(
-                        value = confirmnewpassword,
-                        onValueChange = {
-                            accountViewModel.setConfirmnewpassword(it)
-                        },
-                        maxLines = 1,
-                        label = {
-                            Text("Nhập lại mật khẩu mới")
-                        },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Lock,
-                                contentDescription = null
-                            )
-                        },
-                        visualTransformation = PasswordVisualTransformation(),
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Password,
-                            imeAction = ImeAction.Go
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onGo = {
-                                KeyBoard?.hide()
-                            }
-                        ),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = Color.Transparent,
-                            unfocusedContainerColor = Color.Transparent,
-                            focusedBorderColor = Color.Black,
-                            unfocusedBorderColor = Color.Black,
-                            focusedLabelColor = Color.Black
-                        )
-                    )
-                }
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        val check = accountViewModel.checkPassword()
-                        if (check == "") {
-                            accountViewModel.changePassword()
-                            Toast.makeText(context, "Đổi mật khẩu thành công", Toast.LENGTH_SHORT).show()
-                            KeyBoard?.hide()
-                            accountViewModel.setShowChangePassword(false)
-                            accountViewModel.resetPass()
-                        }
-                        else Toast.makeText(context, check, Toast.LENGTH_SHORT).show()
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = colorResource(R.color.black),
-                        contentColor = colorResource(R.color.white)
-                    )
-                ) {
-                    Text("Lưu")
-                }
-            },
-            dismissButton = {
-                Button(
-                    onClick = {
+                Spacer(modifier = Modifier.height(12.dp))
+                PasswordField(
+                    label = "Nhập lại mật khẩu mới",
+                    value = confirmPassword,
+                    onValueChange = accountViewModel::setConfirmnewpassword,
+                    keyboardController = keyboardController
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    val error = accountViewModel.checkPassword()
+                    if (error.isEmpty()) {
+                        accountViewModel.changePassword()
+                        Toast.makeText(context, "Đổi mật khẩu thành công", Toast.LENGTH_SHORT).show()
                         accountViewModel.setShowChangePassword(false)
                         accountViewModel.resetPass()
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = colorResource(R.color.black),
-                        contentColor = colorResource(R.color.white)
-                    )
-                ) {
-                    Text("Hủy")
-                }
-            },
-            containerColor = Color.White
-        )
-    }
+                        keyboardController?.hide()
+                    } else {
+                        Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = colorResource(R.color.black),
+                    contentColor = colorResource(R.color.white)
+                )
+            ) {
+                Text("Lưu")
+            }
+        },
+        dismissButton = {
+            Button(
+                onClick = {
+                    accountViewModel.setShowChangePassword(false)
+                    accountViewModel.resetPass()
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = colorResource(R.color.black),
+                    contentColor = colorResource(R.color.white)
+                )
+            ) {
+                Text("Hủy")
+            }
+        },
+        containerColor = Color.White
+    )
+}
+
+@Composable
+private fun PasswordField(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    keyboardController: SoftwareKeyboardController?
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        maxLines = 1,
+        label = { Text(label) },
+        leadingIcon = {
+            Icon(imageVector = Icons.Default.Lock, contentDescription = null)
+        },
+        visualTransformation = PasswordVisualTransformation(),
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Password,
+            imeAction = ImeAction.Go
+        ),
+        keyboardActions = KeyboardActions(
+            onGo = { keyboardController?.hide() }
+        ),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = Color.Transparent,
+            unfocusedContainerColor = Color.Transparent,
+            focusedBorderColor = Color.Black,
+            unfocusedBorderColor = Color.Black,
+            focusedLabelColor = Color.Black
+        ),
+        modifier = Modifier.fillMaxWidth()
+    )
 }

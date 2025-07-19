@@ -31,136 +31,117 @@ fun DialogInfoUser(
     show: Boolean,
     accountViewModel: AccountViewModel
 ) {
-    if (show) {
-        val username = accountViewModel.username.collectAsState().value
-        val name = accountViewModel.name.collectAsState().value
-        val email = accountViewModel.email.collectAsState().value
-        val phone = accountViewModel.phone.collectAsState().value
-        val keyBoard = LocalSoftwareKeyboardController.current
-        val context = LocalContext.current
-        AlertDialog(
-            onDismissRequest = {
-                accountViewModel.setShowDialogUserInfo(false)
-            },
-            text = {
-                Column {
-                    OutlinedTextField(
-                        value = username,
-                        onValueChange = {
+    if (!show) return
 
-                        },
-                        label = {
-                            Text("Tên đăng nhập")
-                        },
-                        readOnly = true,
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White,
-                            focusedLabelColor = Color.Black,
-                            focusedBorderColor = Color.Black,
-                            unfocusedBorderColor = Color.Black
-                        )
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    OutlinedTextField(
-                        value = name,
-                        onValueChange = {
-                            accountViewModel.setName(it)
-                        },
-                        label = {
-                            Text("Tên người dùng")
-                        },
-                        maxLines = 1,
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White,
-                            focusedLabelColor = Color.Black,
-                            focusedBorderColor = Color.Black,
-                            unfocusedBorderColor = Color.Black
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onGo = {
-                                keyBoard?.hide()
-                            }
-                        ),
-                        keyboardOptions = KeyboardOptions(
-                            imeAction = ImeAction.Go
-                        )
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    OutlinedTextField(
-                        value = email,
-                        onValueChange = {
+    val username = accountViewModel.username.collectAsState().value
+    val name = accountViewModel.name.collectAsState().value
+    val email = accountViewModel.email.collectAsState().value
+    val phone = accountViewModel.phone.collectAsState().value
 
-                        },
-                        label = {
-                            Text("Email")
-                        },
-                        readOnly = true,
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White,
-                            focusedLabelColor = Color.Black,
-                            focusedBorderColor = Color.Black,
-                            unfocusedBorderColor = Color.Black
-                        )
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    OutlinedTextField(
-                        value = phone,
-                        onValueChange = {
-                            accountViewModel.setPhone(it)
-                        },
-                        label = {
-                            Text("Số điện thoại")
-                        },
-                        maxLines = 1,
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White,
-                            focusedLabelColor = Color.Black,
-                            focusedBorderColor = Color.Black,
-                            unfocusedBorderColor = Color.Black
-                        ),
-                        keyboardOptions = KeyboardOptions(
-                            imeAction = ImeAction.Go,
-                            keyboardType = KeyboardType.Phone
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onGo = {
-                                keyBoard?.hide()
-                            }
-                        )
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val context = LocalContext.current
 
+    AlertDialog(
+        onDismissRequest = {
+            accountViewModel.setShowDialogUserInfo(false)
+        },
+        text = {
+            Column {
+                InfoField(
+                    label = "Tên đăng nhập",
+                    value = username,
+                    readOnly = true
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                InfoField(
+                    label = "Tên người dùng",
+                    value = name,
+                    onValueChange = accountViewModel::setName,
+                    imeAction = ImeAction.Go,
+                    onGo = { keyboardController?.hide() }
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                InfoField(
+                    label = "Email",
+                    value = email,
+                    readOnly = true
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                InfoField(
+                    label = "Số điện thoại",
+                    value = phone,
+                    onValueChange = accountViewModel::setPhone,
+                    keyboardType = KeyboardType.Phone,
+                    imeAction = ImeAction.Go,
+                    onGo = { keyboardController?.hide() }
+                )
+            }
+        },
+        confirmButton = {
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Button(
+                    onClick = {
+                        accountViewModel.setShowDialogUserInfo(false)
+                        val result = accountViewModel.checkInfo()
+                        if (result.isEmpty()) {
+                            Toast.makeText(context, "Lưu thành công", Toast.LENGTH_SHORT).show()
+                            accountViewModel.saveUserFireStore()
+                        } else {
+                            Toast.makeText(context, result, Toast.LENGTH_SHORT).show()
+                        }
+                        keyboardController?.hide()
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Black,
+                        contentColor = Color.White
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-            },
-            confirmButton = {
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Button(
-                        onClick = {
-                            accountViewModel.setShowDialogUserInfo(false)
-                            val checkInfo = accountViewModel.checkInfo()
-                            if (checkInfo == "") {
-                                Toast.makeText(context, "Lưu thành công", Toast.LENGTH_SHORT).show()
-                                accountViewModel.saveUserFireStore()
-                            } else Toast.makeText(context, checkInfo, Toast.LENGTH_SHORT).show()
-                            keyBoard?.hide()
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Black,
-                            contentColor = Color.White
-                        )
-                    ) {
-                        Text("Lưu")
-                    }
+                    Text("Lưu")
                 }
-            },
-            containerColor = Color.White
-        )
-    }
+            }
+        },
+        containerColor = Color.White
+    )
+}
+
+@Composable
+private fun InfoField(
+    label: String,
+    value: String,
+    onValueChange: ((String) -> Unit)? = null,
+    readOnly: Boolean = false,
+    keyboardType: KeyboardType = KeyboardType.Text,
+    imeAction: ImeAction = ImeAction.Default,
+    onGo: (() -> Unit)? = null
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange ?: {},
+        label = { Text(label) },
+        readOnly = readOnly,
+        maxLines = 1,
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = Color.White,
+            unfocusedContainerColor = Color.White,
+            focusedLabelColor = Color.Black,
+            focusedBorderColor = Color.Black,
+            unfocusedBorderColor = Color.Black
+        ),
+        keyboardOptions = KeyboardOptions(
+            keyboardType = keyboardType,
+            imeAction = imeAction
+        ),
+        keyboardActions = if (onGo != null) {
+            KeyboardActions(onGo = { onGo() })
+        } else {
+            KeyboardActions()
+        },
+        modifier = Modifier.fillMaxWidth()
+    )
 }
