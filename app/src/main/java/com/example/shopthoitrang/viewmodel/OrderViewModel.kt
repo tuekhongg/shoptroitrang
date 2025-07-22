@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.asStateFlow
 class OrderViewModel() : ViewModel() {
     private val fireBase = FirebaseFirestore.getInstance()
     private val collectionOrder = fireBase.collection("Order")
-    private val collectionOrderDetails = fireBase.collection("OrderDetails")
     private var _listOrder = MutableStateFlow<List<Order>>(emptyList())
     val listOrder = _listOrder.asStateFlow()
     private var _listOrderDangGiao = MutableStateFlow<List<Order>>(emptyList())

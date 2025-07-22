@@ -13,8 +13,6 @@ import coil.compose.AsyncImage
 
 @Composable
 fun MainProductImage(imageUrl: String?) {
-    val context = LocalContext.current
-
     if (imageUrl != null) {
         AsyncImage(
             model = imageUrl,

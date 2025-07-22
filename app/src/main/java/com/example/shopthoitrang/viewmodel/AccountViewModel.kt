@@ -33,8 +33,6 @@ class AccountViewModel(val shareViewModel: ShareViewModel, val context: Context)
     val selectedUriImage = _selectedUriImage.asStateFlow()
     private var _showChangePassword = MutableStateFlow<Boolean>(false)
     val showChangePassword = _showChangePassword.asStateFlow()
-    private var _showDialogName = MutableStateFlow<Boolean>(false)
-    val showDialogName = _showDialogName.asStateFlow()
     private var _showDialogUserInfo = MutableStateFlow<Boolean>(false)
     val showDialogUserInfo = _showDialogUserInfo.asStateFlow()
 
@@ -58,9 +56,7 @@ class AccountViewModel(val shareViewModel: ShareViewModel, val context: Context)
         _selectedUriImage.value = uri
     }
 
-    fun setShowDialogName(show: Boolean) {
-        _showDialogName.value = show
-    }
+
 
     fun setShowChangePassword(show: Boolean) {
         _showChangePassword.value = show

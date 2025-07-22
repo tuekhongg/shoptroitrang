@@ -2,20 +2,13 @@ package com.example.shopthoitrang.ui.screens.login
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
@@ -23,10 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.input.*
 import androidx.compose.ui.unit.dp
 import com.example.shopthoitrang.R
 import com.example.shopthoitrang.viewmodel.LoginViewModel
@@ -35,55 +25,77 @@ import com.example.shopthoitrang.viewmodel.LoginViewModel
 fun FieldLogin(loginViewModel: LoginViewModel) {
     val username = loginViewModel.username.collectAsState().value
     val password = loginViewModel.password.collectAsState().value
-    val keyBoard = LocalSoftwareKeyboardController.current
     val showPassword = loginViewModel.showPassword.collectAsState().value
-    val interactionSource = remember {
-        MutableInteractionSource()
-    }
-    OutlinedTextField(
-        value = username,
-        onValueChange = {
-            loginViewModel.setUsername(it)
-        },
-        label = {
-            Text(text = "Tên đăng nhập")
-        },
-        colors = OutlinedTextFieldDefaults.colors(
-            unfocusedContainerColor = Color.Transparent,
-            focusedContainerColor = Color.Transparent,
-            focusedBorderColor = Color.Black,
-            unfocusedBorderColor = Color.Black,
-            focusedLabelColor = Color.Black
-        ),
-        modifier = Modifier.fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        leadingIcon = {
-            Icon(
-                imageVector = Icons.Default.Person,
-                contentDescription = null
-            )
-        },
-        maxLines = 1,
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Password,
-            imeAction = ImeAction.Go
-        ),
-        keyboardActions = KeyboardActions(
-            onGo = {
-                keyBoard?.hide()
-            }
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val interactionSource = remember { MutableInteractionSource() }
+
+    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+        LoginTextField(
+            value = username,
+            onValueChange = loginViewModel::setUsername,
+            label = "Tên đăng nhập",
+            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Next
+            ),
+            onImeAction = { keyboardController?.hide() }
         )
-    )
-    Spacer(modifier = Modifier.height(12.dp))
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        LoginTextField(
+            value = password,
+            onValueChange = loginViewModel::setPassword,
+            label = "Mật khẩu",
+            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
+            trailingIcon = {
+                Icon(
+                    painter = painterResource(
+                        if (showPassword) R.drawable.eyehind else R.drawable.eyenonhind
+                    ),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable(
+                            interactionSource = interactionSource,
+                            indication = null
+                        ) {
+                            loginViewModel.setShowPassword(!showPassword)
+                        }
+                )
+            },
+            visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Password,
+                imeAction = ImeAction.Go
+            ),
+            onImeAction = { keyboardController?.hide() }
+        )
+    }
+}
+
+@Composable
+fun LoginTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    keyboardOptions: KeyboardOptions,
+    onImeAction: () -> Unit
+) {
     OutlinedTextField(
-        value = password,
-        onValueChange = {
-            loginViewModel.setPassword(it)
-        },
-        label = {
-            Text(text = "Mật khẩu")
-        },
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(label) },
+        leadingIcon = leadingIcon,
+        trailingIcon = trailingIcon,
+        singleLine = true,
+        maxLines = 1,
+        modifier = Modifier
+            .fillMaxWidth(),
         colors = OutlinedTextFieldDefaults.colors(
             unfocusedContainerColor = Color.Transparent,
             focusedContainerColor = Color.Transparent,
@@ -91,39 +103,8 @@ fun FieldLogin(loginViewModel: LoginViewModel) {
             unfocusedBorderColor = Color.Black,
             focusedLabelColor = Color.Black
         ),
-        modifier = Modifier.fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        leadingIcon = {
-            Icon(
-                imageVector = Icons.Default.Lock,
-                contentDescription = null
-            )
-        },
-        trailingIcon = {
-            Icon(
-                painter = painterResource(if (showPassword) R.drawable.eyehind else R.drawable.eyenonhind),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(24.dp)
-                    .clickable(
-                        interactionSource = interactionSource,
-                        indication = null
-                    ) {
-                        loginViewModel.setShowPassword(!showPassword)
-                    }
-            )
-        },
-        maxLines = 1,
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Password,
-            imeAction = ImeAction.Go
-        ),
-        keyboardActions = KeyboardActions(
-            onGo = {
-                keyBoard?.hide()
-            }
-        ),
-        visualTransformation = if(showPassword) VisualTransformation.None else PasswordVisualTransformation()
+        visualTransformation = visualTransformation,
+        keyboardOptions = keyboardOptions,
+        keyboardActions = KeyboardActions(onGo = { onImeAction() })
     )
 }
